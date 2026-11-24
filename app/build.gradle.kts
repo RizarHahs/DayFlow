@@ -1,11 +1,43 @@
-plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
+
+import java.util.Properties
+
+        plugins {
+            alias(libs.plugins.android.application)
+            alias(libs.plugins.kotlin.android)
+            alias(libs.plugins.kotlin.compose)
+            alias(libs.plugins.kotlin.serialization)
+            alias(libs.plugins.ksp)
+            alias(libs.plugins.hilt)
+        }
+
+// Load release signing credentials
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+
+require(keystorePropertiesFile.exists()) {
+    "keystore.properties file not found!"
 }
+
+keystorePropertiesFile.inputStream().use { stream ->
+    keystoreProperties.load(stream)
+}
+
+// Read signing properties safely
+val storeFilePath: String =
+    keystoreProperties.getProperty("storeFile")
+        ?: error("storeFile is missing from keystore.properties")
+
+val storePasswordValue: String =
+    keystoreProperties.getProperty("storePassword")
+        ?: error("storePassword is missing from keystore.properties")
+
+val keyAliasValue: String =
+    keystoreProperties.getProperty("keyAlias")
+        ?: error("keyAlias is missing from keystore.properties")
+
+val keyPasswordValue: String =
+    keystoreProperties.getProperty("keyPassword")
+        ?: error("keyPassword is missing from keystore.properties")
 
 android {
     namespace = "com.dayflow.app"
@@ -19,22 +51,40 @@ android {
         versionName = "0.6.0"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(storeFilePath)
+            storePassword = storePasswordValue
+            keyAlias = keyAliasValue
+            keyPassword = keyPasswordValue
+        }
+    }
+
     buildTypes {
         release {
-            // R8 is switched on in Phase 6 after the full test pass.
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
+    }
 }
 
-// Room schema JSON is committed so migrations can be tested (MigrationTestHelper) in Phase 6.
-ksp { arg("room.schemaLocation", "$projectDir/schemas") }
+// Room schema configuration
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 
 dependencies {
     implementation(platform(libs.compose.bom))

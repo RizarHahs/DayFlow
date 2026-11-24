@@ -23,3 +23,5 @@ local.properties
 .env.*
 secrets.properties
 keystore.properties
+# Android release build outputs
+/app/release/
