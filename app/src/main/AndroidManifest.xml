@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- No INTERNET permission on purpose: DAYFLOW is offline by construction. -->
+
+    <!-- Notifications (runtime permission on Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Exact alarms. USE_EXACT_ALARM is auto-granted on 13+ (alarm-clock use case, personal build);
+         on 12/12L the user-granted SCHEDULE_EXACT_ALARM applies; below 12 nothing is needed.
+         If this app is ever published, re-check Google Play's policy for USE_EXACT_ALARM. -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+
+    <!-- Ringing alarm: lock-screen UI, foreground sound, vibration -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Restore alarms and timers after reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Asked only from the setup guide, never silently -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Lets DAYFLOW see whether WhatsApp Business / WhatsApp is installed (package visibility, Android 11+). -->
+    <queries>
+        <package android:name="com.whatsapp.w4b" />
+        <package android:name="com.whatsapp" />
+    </queries>
+
+    <application
+        android:name=".DayflowApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Dayflow">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Full-screen ringing UI over the lock screen -->
+        <activity
+            android:name=".platform.alarm.AlarmRingActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <service
+            android:name=".platform.alarm.AlarmRingService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <!-- Internal delivery points: not exported -->
+        <receiver android:name=".platform.alarm.AlarmReceiver" android:exported="false" />
+        <receiver android:name=".platform.timer.TimerReceiver" android:exported="false" />
+        <receiver android:name=".platform.notify.ReminderReceiver" android:exported="false" />
+        <receiver android:name=".platform.whatsapp.ScheduledMessageReceiver" android:exported="false" />
+
+        <!-- Opens the WhatsApp chat with the message prefilled. Reached only through our own PendingIntents. -->
+        <activity
+            android:name=".platform.whatsapp.OpenWhatsAppActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Dayflow.Translucent" />
+
+        <!-- System events: boot, update, time / timezone / date changes -->
+        <receiver android:name=".platform.SystemEventReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

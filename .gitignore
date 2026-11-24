@@ -1,0 +1,24 @@
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+.DS_Store
+
+# Kotlin and Gradle
+.kotlin/
+
+# Android build outputs
+*.apk
+*.aab
+
+# Signing keys - NEVER upload these
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# Environment and secret files
+.env
+.env.*
+secrets.properties
