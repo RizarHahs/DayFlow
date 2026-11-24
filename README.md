@@ -2,6 +2,12 @@
 
 ### Take control of your day. Build consistency. Make every day count.
 
+<p align="center">
+  <a href="https://github.com/RizarHahs/DayFlow/releases/latest">
+    <img src="https://img.shields.io/badge/Download-Latest%20APK-2ea44f?style=for-the-badge&logo=android" alt="Download Latest APK">
+  </a>
+</p>
+
 DAYFLOW is a personal productivity and daily routine management Android application designed to help you organize your day, build better habits, manage tasks, and stay consistent with your goals.
 
 Instead of juggling multiple productivity applications, DAYFLOW brings your daily planning and essential routines together in one place.
@@ -57,14 +63,17 @@ Screenshots coming soon.
 
 ---
 
-## Installation
+## Download & Installation
 
-1. Visit the [Releases](../../releases) section.
-2. Download the latest available APK.
-3. Install it on your Android device.
-4. Open DAYFLOW and start organizing your day.
+**Latest Release: v0.6.0**
 
-If Android asks for permission to install applications from your browser or file manager, allow it for that installation.
+1. Visit the [Latest Release](https://github.com/RizarHahs/DayFlow/releases/latest) page.
+2. Download `app-release.apk`.
+3. Open the downloaded APK on your Android device.
+4. Allow installation from unknown sources if prompted.
+5. Install and launch DAYFLOW.
+
+**Compatibility:** Android 8.0 (API 26) and above.
 
 ---
 
