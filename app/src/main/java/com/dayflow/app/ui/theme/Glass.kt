@@ -21,6 +21,9 @@ data class DfGlass(
     val shadow: Dp,
     val shadowRaised: Dp,
     val tintAlpha: Float,
+    /** Denser fills for bars and sheets, where scrolling content passes underneath (no backdrop blur). */
+    val chromeTop: Color,
+    val chromeBottom: Color,
 )
 
 val DarkGlass = DfGlass(
@@ -32,6 +35,8 @@ val DarkGlass = DfGlass(
     shadow = 6.dp,
     shadowRaised = 14.dp,
     tintAlpha = 0.12f,
+    chromeTop = Color(0xF2202329),
+    chromeBottom = Color(0xF21A1D22),
 )
 
 val LightGlass = DfGlass(
@@ -43,6 +48,8 @@ val LightGlass = DfGlass(
     shadow = 4.dp,
     shadowRaised = 10.dp,
     tintAlpha = 0.10f,
+    chromeTop = Color(0xF2FFFFFF),
+    chromeBottom = Color(0xE6F7F8FB),
 )
 
 val LocalGlass = staticCompositionLocalOf { DarkGlass }

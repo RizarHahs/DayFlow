@@ -29,7 +29,7 @@ val DarkDfColors = DfColors(
 )
 
 val LightDfColors = DfColors(
-    background = Color(0xFFF5F4F0),
+    background = Color(0xFFF1F2F6),
     surface = Color(0xFFFFFFFF),
     raised = Color(0xFFEDEBE5),
     hairline = Color(0x1F000000),

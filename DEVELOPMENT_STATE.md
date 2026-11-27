@@ -115,19 +115,26 @@ Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DA
 - `app/build.gradle.kts` throws at configuration time if `keystore.properties` is missing, so no Gradle task runs without it (debug builds included). Not changed.
 - Docs vs code: no discrepancies found beyond the unchecked boxes in section 6.
 
-### Done (UNVERIFIED — not compiled)
-- Added `ui/theme/Glass.kt` (glass tokens, `Df.glass`), `ui/components/Glass.kt` (`Modifier.glass`, `GlassCard`), `DfShapes.glass`, `LocalGlass` provided in `DayflowTheme`.
-- No screen uses them yet.
+### Done
+- Stage 2 glass foundation (commit 781060c): `ui/theme/Glass.kt` (tokens, `Df.glass`), `ui/components/Glass.kt` (`Modifier.glass`, `GlassCard`), `DfShapes.glass`. Owner-reported: Assemble BUILD SUCCESSFUL, signed release APK installed over existing app on OnePlus 8T, data preserved, no visible change (expected).
+- Step 1 of screen integration (UNVERIFIED — not compiled): `Modifier.ambientBackground()` (soft static colour glows, dark + light) now used by `DayflowRoot`; `chrome` option on `Modifier.glass` and `chromeTop/chromeBottom` tokens for bars/sheets; light theme background changed to cool `0xFFF1F2F6`.
 
-### Build/test status
-- Not built. Authoring environment has no Android SDK and no access to Google Maven. Compile on owner's machine before continuing.
+### Design references (owner-supplied)
+Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp radii; diffuse shadows; floating pill nav with filled circular selected item; circular avatars and circular "+" buttons. App default theme is DARK, so both themes must be supported; light follows the references most closely.
+
+### Screen integration plan
+1. Ambient backdrop + chrome variant (done, unverified).
+2. Home top section: top icons, Overview, NowNext, banner, Review button.
+3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper.
+4. Bottom bar, FAB, timer mini-bar, scrim.
+5. Other screens (Tasks, Roadmap, Insights, Ideas, Settings, Alarms, Messages, Timer, Review).
+6. Sheets, dialogs, editors.
+Open risks: shadow under translucent fill may show a dark box on some devices (check on device; fallback border-only); no backdrop blur (Haze not approved).
 
 ### Next steps
-1. Owner: `git checkout feature/glass-redesign`, build in Android Studio, report errors.
-2. Apply `GlassCard` to Home cards (Foundation/Important/Normal/Extra/Ideas), then bottom bar, sheets, dialogs.
-3. Stage 3: `ProfilePrefs` in `AppPrefs` (name, photo path, onboarded), onboarding screen, Photo Picker (copy image into app files dir), profile section in Settings, name in Home greeting.
-4. Stage 4: extend `pressable`, respect reduced-motion, haptic helper.
-5. Decide on backup of profile.
+1. Owner: apply patch, build, check Home background in dark and light, report.
+2. Then step 2 (Home top section).
+3. Later: Stage 3 profile/onboarding, Stage 4 interaction, backup of profile decision.
 
 ---
 

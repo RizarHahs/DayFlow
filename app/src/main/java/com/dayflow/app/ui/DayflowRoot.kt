@@ -55,6 +55,7 @@ import com.dayflow.app.ui.feature.quick.QuickKind
 import com.dayflow.app.ui.feature.roadmap.RoadmapScreen
 import com.dayflow.app.ui.feature.tasks.Lane
 import com.dayflow.app.ui.feature.tasks.TasksScreen
+import com.dayflow.app.ui.components.ambientBackground
 import com.dayflow.app.ui.nav.DayflowBottomBar
 import com.dayflow.app.ui.nav.Routes
 import com.dayflow.app.ui.nav.Tab
@@ -119,16 +120,7 @@ fun DayflowRoot(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Df.colors.background)
-            .drawBehind {
-                drawRect(
-                    Brush.radialGradient(
-                        listOf(Color(0x2410B981), Color.Transparent),
-                        center = Offset(0f, 0f),
-                        radius = size.width * 1.15f,
-                    )
-                )
-            }
+            .ambientBackground()
     ) {
         NavHost(
             navController = nav,

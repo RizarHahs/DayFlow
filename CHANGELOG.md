@@ -34,11 +34,14 @@ This section should be updated as meaningful development work is completed.
 
 ### Added
 
-- (Branch `feature/glass-redesign`, unverified) Glass design tokens and `GlassCard` / `Modifier.glass` components. Not yet applied to screens.
+- (Branch `feature/glass-redesign`) Glass design tokens and `GlassCard` / `Modifier.glass` components (built and installed by owner).
+- (Branch `feature/glass-redesign`, unverified) Ambient glow backdrop and denser chrome glass variant.
 
 ### Changed
 
-- Nothing documented yet.
+- (unverified) Light theme background shifted to a cooler neutral.
+
+
 
 ### Fixed
 
