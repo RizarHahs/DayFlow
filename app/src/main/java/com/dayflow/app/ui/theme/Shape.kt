@@ -8,6 +8,7 @@ object DfShapes {
     val small = RoundedCornerShape(10.dp)
     val card = RoundedCornerShape(14.dp)
     val panel = RoundedCornerShape(22.dp)
+    val glass = RoundedCornerShape(24.dp)
     val sheet = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
 }
 

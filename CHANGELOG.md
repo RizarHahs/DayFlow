@@ -34,7 +34,7 @@ This section should be updated as meaningful development work is completed.
 
 ### Added
 
-- Nothing documented yet.
+- (Branch `feature/glass-redesign`, unverified) Glass design tokens and `GlassCard` / `Modifier.glass` components. Not yet applied to screens.
 
 ### Changed
 

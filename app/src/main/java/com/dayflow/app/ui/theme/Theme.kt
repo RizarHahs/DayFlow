@@ -17,6 +17,8 @@ object Df {
         @Composable @ReadOnlyComposable get() = LocalDfColors.current
     val section: SectionPalette
         @Composable @ReadOnlyComposable get() = LocalSectionPalette.current
+    val glass: DfGlass
+        @Composable @ReadOnlyComposable get() = LocalGlass.current
 }
 
 /** Re-skins every shared component (check, ring, chip, empty state) for one section. */
@@ -52,6 +54,7 @@ fun DayflowTheme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
     }
     CompositionLocalProvider(
         LocalDfColors provides c,
+        LocalGlass provides (if (darkTheme) DarkGlass else LightGlass),
         LocalSectionPalette provides sectionPalette(DaySection.FOUNDATION, darkTheme),
     ) {
         MaterialTheme(colorScheme = scheme, typography = M3Type, shapes = M3Shapes, content = content)

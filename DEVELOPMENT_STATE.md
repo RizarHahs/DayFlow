@@ -13,7 +13,7 @@
 - **Current version code:** 6
 - **Development status:** Active development
 - **Distribution:** GitHub Releases
-- **Current checkpoint:** Initial handover documentation setup
+- **Current checkpoint:** Glassmorphism redesign — Stage 2 (design system foundation) started on branch `feature/glass-redesign`
 
 DAYFLOW is an existing Android productivity application. Development must continue from the existing codebase.
 
@@ -98,6 +98,36 @@ The handover system consists of:
 3. CHANGELOG.md — history of completed development changes.
 
 The documentation system is currently being established.
+
+---
+
+## 5b. Active Task: Glassmorphism redesign + profile personalization
+
+Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DAYFLOW Master Context.
+
+### Audit findings (verified in source)
+- Stack matches guide: Compose, Hilt, Room (DB version 4, schema exported), DataStore already a dependency (`AppPrefs`, store `dayflow_prefs`).
+- Theme: `Df.colors` / `Df.section` (ui/theme). Flat dark/light surfaces. No glass, no blur.
+- Existing interaction: `Modifier.pressable` (ui/components/Modifiers.kt) = press-scale + optional haptic. Haptics used on task/habit toggle and drag only. Reuse and extend; do not duplicate.
+- No profile, no onboarding, no display name. Home greeting is hardcoded (`HomeScreen.greeting`).
+- Backup (`BackupManager`) covers DB data only; `AppPrefs` is NOT in backup. Profile will not be restored from JSON unless backup is extended (needs backup `VERSION` bump, backward-compatible).
+- Upgrade vs fresh install cannot be told apart from existing prefs. Planned approach: onboarding flag defaults to "not done"; show a skippable welcome (name + optional photo) once to everyone, never block, never touch data.
+- `app/build.gradle.kts` throws at configuration time if `keystore.properties` is missing, so no Gradle task runs without it (debug builds included). Not changed.
+- Docs vs code: no discrepancies found beyond the unchecked boxes in section 6.
+
+### Done (UNVERIFIED — not compiled)
+- Added `ui/theme/Glass.kt` (glass tokens, `Df.glass`), `ui/components/Glass.kt` (`Modifier.glass`, `GlassCard`), `DfShapes.glass`, `LocalGlass` provided in `DayflowTheme`.
+- No screen uses them yet.
+
+### Build/test status
+- Not built. Authoring environment has no Android SDK and no access to Google Maven. Compile on owner's machine before continuing.
+
+### Next steps
+1. Owner: `git checkout feature/glass-redesign`, build in Android Studio, report errors.
+2. Apply `GlassCard` to Home cards (Foundation/Important/Normal/Extra/Ideas), then bottom bar, sheets, dialogs.
+3. Stage 3: `ProfilePrefs` in `AppPrefs` (name, photo path, onboarded), onboarding screen, Photo Picker (copy image into app files dir), profile section in Settings, name in Home greeting.
+4. Stage 4: extend `pressable`, respect reduced-motion, haptic helper.
+5. Decide on backup of profile.
 
 ---
 
