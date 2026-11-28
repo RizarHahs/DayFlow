@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dayflow.app.ui.theme.Df
 import com.dayflow.app.ui.theme.DfShapes
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /** Frosted-glass surface: soft shadow, translucent gradient fill, gradient hairline border. */
 @Composable
@@ -78,6 +80,9 @@ fun Modifier.glass(
         .border(1.dp, Brush.linearGradient(listOf(g.borderTop, g.borderBottom), start = Offset.Zero, end = Offset.Infinite), shape)
 }
 
+/** Number of stacked outline strokes that build the shadow falloff. See [softShadow]. */
+private const val SHADOW_LAYERS = 12
+
 /**
  * Soft shadow drawn only OUTSIDE [shape].
  *
@@ -87,11 +92,22 @@ fun Modifier.glass(
  * leaves that polygon as an unshadowed hole. Under a see-through fill the hole shows as a sharp lighter
  * rectangle inside a grey rim.
  *
- * Here: a few widening strokes of the shape's outline, with the shape interior clipped out
- * (ClipOp.Difference), so nothing is ever painted under the glass. Draw modifiers are not clipped to
- * layout bounds; only an ancestor that clips would cut it (LazyColumn clips at its viewport, and the
- * shadow reach, spread + ~0.3*spread, stays inside the 16dp list padding / spacing).
- * Peak opacity is low, so a rendering fault would only mean "no shadow" or a faint tint.
+ * Here: stacked strokes of the shape's outline, with the shape interior clipped out
+ * (ClipOp.Difference), so nothing is ever painted under the glass.
+ *
+ * Smooth falloff (patch 0005). Patch 0004 used 3 strokes of equal opacity at evenly spaced widths, so the
+ * shadow was 3/3, 2/3, 1/3 opaque in three bands: visible concentric rings. Now every layer has the same
+ * tiny opacity, and the layers are spaced so the number of layers covering a point at distance d from the
+ * edge is about SHADOW_LAYERS * (1 - d / spread)^2. Layer m reaches out to spread * (1 - sqrt((m - 1) / N)).
+ * That gives a quadratic ease-out: strongest at the edge, fading to exactly 0 with zero slope at the
+ * outer limit. Each step is under ~1% opacity, so no band can be seen. Layer opacity is chosen so the
+ * stacked result at the edge equals [alpha] (alpha compositing is multiplicative, not additive).
+ *
+ * Still plain Canvas strokes: no blur, no RenderEffect, no bitmap cache, works on every API level.
+ * The display list is recorded once and replayed, so scrolling does not re-run this code.
+ * Draw modifiers are not clipped to layout bounds; only an ancestor that clips would cut it
+ * (LazyColumn clips at its viewport, and the shadow reach, spread + 0.3 * spread, stays inside the 16dp
+ * list padding / spacing).
  */
 private fun Modifier.softShadow(shape: Shape, color: Color, spread: Dp, alpha: Float): Modifier =
     drawWithCache {
@@ -101,17 +117,17 @@ private fun Modifier.softShadow(shape: Shape, color: Color, spread: Dp, alpha: F
             is Outline.Rounded -> Path().apply { addRoundRect(o.roundRect) }
         }
         val spreadPx = spread.toPx()
-        val layers = 3
-        val layerColor = color.copy(alpha = alpha / layers)
+        val layerColor = color.copy(alpha = 1f - (1f - alpha).pow(1f / SHADOW_LAYERS))
+        // Stroke widths, widest first. A stroke is centred on the outline, so width = 2 * outward reach;
+        // the inner half is removed by the clip below.
+        val widths = FloatArray(SHADOW_LAYERS) { i ->
+            2f * spreadPx * (1f - sqrt(i.toFloat() / SHADOW_LAYERS))
+        }
         onDrawBehind {
             clipPath(path, ClipOp.Difference) {
                 translate(top = spreadPx * 0.3f) {
-                    for (i in 1..layers) {
-                        drawPath(
-                            path,
-                            layerColor,
-                            style = Stroke(width = 2f * spreadPx * i / layers, join = StrokeJoin.Round),
-                        )
+                    for (w in widths) {
+                        drawPath(path, layerColor, style = Stroke(width = w, join = StrokeJoin.Round))
                     }
                 }
             }

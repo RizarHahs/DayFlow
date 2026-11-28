@@ -37,7 +37,7 @@ This section should be updated as meaningful development work is completed.
 - (Branch `feature/glass-redesign`) Glass design tokens and `GlassCard` / `Modifier.glass` components (built and installed by owner).
 - (Branch `feature/glass-redesign`) Ambient glow backdrop and denser chrome glass variant (built and installed by owner).
 - (Branch `feature/glass-redesign`) `GlassIconButton`; Home top section (overview, now/next, top icons, day-complete banner, review button) restyled with glass. Visual only (built and installed by owner).
-- (Branch `feature/glass-redesign`, unverified) Liquid-glass refinement: cool-tinted translucent fills, diagonal edge highlight, internal sheen, lower-rim shade, outside-only soft shadow.
+- (Branch `feature/glass-redesign`, built and installed by owner) Liquid-glass refinement: cool-tinted translucent fills, diagonal edge highlight, internal sheen, lower-rim shade, outside-only soft shadow.
 
 ### Changed
 
@@ -47,7 +47,8 @@ This section should be updated as meaningful development work is completed.
 
 ### Fixed
 
-- (unverified) Sharp lighter inset rectangles and grey cast inside glass cards and round buttons, caused by the platform elevation shadow under translucent fills; replaced with a drawn outside-only shadow.
+- Sharp lighter inset rectangles and grey cast inside glass cards and round buttons, caused by the platform elevation shadow under translucent fills; replaced with a drawn outside-only shadow (verified by owner on OnePlus 8T).
+- (Patch 0005, unverified) Three visible concentric opacity rings around round glass buttons and cards, caused by 3 equal-opacity strokes in the drawn shadow; replaced with 12 thin layers spaced for a smooth quadratic falloff. Only `softShadow` in `ui/components/Glass.kt` changed.
 
 ### Removed
 

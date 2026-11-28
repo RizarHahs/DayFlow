@@ -13,7 +13,7 @@
 - **Current version code:** 6
 - **Development status:** Active development
 - **Distribution:** GitHub Releases
-- **Current checkpoint:** Glassmorphism redesign — Stage 2 (design system foundation) started on branch `feature/glass-redesign`
+- **Current checkpoint:** Glassmorphism redesign — Home top section; patch 0005 (shadow refinement) prepared, awaiting owner verification, on branch `feature/glass-redesign`
 
 DAYFLOW is an existing Android productivity application. Development must continue from the existing codebase.
 
@@ -121,27 +121,35 @@ Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DA
 
 - Step 2 / patch 0003 (commit 91cd456; owner-reported: built and installed on OnePlus 8T; screenshot showed sharp lighter inset rectangles inside Overview/NowNext and round top buttons, plus grey cast over the glass): Home top section migrated to glass. `Overview` and `NowNext` use `Modifier.glass` (NowNext raised); new reusable `GlassIconButton` (44dp glass circle, press-scale, no haptic) used for the three top icons, amber permission dot kept; `DayCompleteBanner` keeps gradient with glass rim and 24dp radius; `ReviewButton` is a glass pill until the day is complete, then solid accent. Files: `ui/components/Glass.kt`, `ui/feature/home/HomeScreen.kt`. No logic, state or navigation changed.
 
-- Patch 0004 (UNVERIFIED — not compiled or run; visual verification pending owner testing): glass refinement.
-  - Root cause (source-level, not observed on device): `Modifier.shadow` in `Modifier.glass`. Compose sets layer alpha 1 and outline alpha 1 (OutlineResolver). HWUI `drawShadow` passes `kTransparentOccluder` only when node alpha x outline alpha < 1, so a translucent *fill* is still treated as an opaque occluder. For opaque occluders Skia's shadow tessellator emits a penumbra ring plus an inset convex umbra polygon and does not fill the polygon (hole). Under a see-through fill: grey rim + sharp lighter inset rectangle.
+- Patch 0004 (commit 22f9b88; owner-reported: built, applied and installed on OnePlus 8T): glass refinement.
+  - Root cause of the inset rectangles (source-level): `Modifier.shadow` in `Modifier.glass`. Compose sets layer alpha 1 and outline alpha 1 (OutlineResolver). HWUI `drawShadow` passes `kTransparentOccluder` only when node alpha x outline alpha < 1, so a translucent *fill* is still treated as an opaque occluder. For opaque occluders Skia's shadow tessellator emits a penumbra ring plus an inset convex umbra polygon and does not fill the polygon (hole). Under a see-through fill: grey rim + sharp lighter inset rectangle.
   - Fix: removed `Modifier.shadow`; private `softShadow` in `ui/components/Glass.kt` (3 widening strokes of the shape outline inside `drawWithCache`, interior clipped out with `ClipOp.Difference`, low peak alpha). Works for rounded rects and circles via `Outline` to `Path`.
-  - Refinements: cool-tinted, more translucent fills; diagonal edge-highlight border; internal sheen (top band + top-left radial); faint lower-rim shade; new tokens `shadowAlpha`, `sheen`, `shade`.
-  - Files: `ui/components/Glass.kt`, `ui/theme/Glass.kt`. If the rectangles persist on device, next suspect is the fill gradient; diagnostic: delete only the shadow line.
+  - Refinements: cool-tinted, more translucent fills; diagonal edge-highlight border; internal sheen (top band + top-left radial); faint lower-rim shade; tokens `shadowAlpha`, `sheen`, `shade`.
+  - **Owner feedback on device:** inset-rectangle problem is FIXED. New problem: circular glass buttons show about three visible concentric opacity rings around their outer edge; the shadow looks segmented, not smooth.
+  - Cause of the rings (source-level): the 3 strokes had equal opacity (alpha/3) and evenly spaced widths, so the shadow was 3/3, 2/3 and 1/3 opaque in three flat bands with hard steps between them.
+
+- Patch 0005 (`0005-glass-shadow-refinement.patch`; UNVERIFIED — not compiled or run by the assistant; awaiting owner build and visual check): smooth shadow.
+  - Only `softShadow` in `ui/components/Glass.kt` changed. Still outside-only (`ClipOp.Difference`), so no inset rectangles can return. No token, fill, border, sheen or shade change. Shadow reach is unchanged (spread + 0.3 x spread offset down), so no new clipping risk.
+  - Now `SHADOW_LAYERS = 12` strokes, each with the same tiny opacity, spaced so layer m reaches `spread * (1 - sqrt((m-1)/N))`. Layers covering a point at distance d are about `N * (1 - d/spread)^2`: quadratic ease-out, strongest at the edge, fading to zero with zero slope at the outer limit. Per-layer alpha is `1 - (1 - alpha)^(1/N)` so the edge opacity equals the token value (alpha compositing is multiplicative).
+  - Offline arithmetic check: largest opacity step between neighbouring layers is about 1.1% (light theme) and 2.9% (dark theme) of full black/ink, down from 33-50% steps in patch 0004.
+  - No blur, RenderEffect or bitmap cache; plain Canvas strokes, recorded once and replayed. Cost is 12 stroked paths per glass surface instead of 3.
+  - Fallback if still visible on device: raise `SHADOW_LAYERS` to 16-20; if cost is a problem, lower to 8-10. Next alternative if strokes are not good enough: render the shadow once into an Alpha8 ImageBitmap with `BlurMaskFilter` (software canvas) and draw it clipped, at the cost of extra memory per card.
 
 ### Design references (owner-supplied)
 Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp radii; diffuse shadows; floating pill nav with filled circular selected item; circular avatars and circular "+" buttons. App default theme is DARK, so both themes must be supported; light follows the references most closely.
 
 ### Screen integration plan
 1. Ambient backdrop + chrome variant (done, verified by owner).
-2. Home top section: top icons, Overview, NowNext, banner, Review button (patch 0003 installed; visual defect addressed by patch 0004, unverified).
+2. Home top section: top icons, Overview, NowNext, banner, Review button (patch 0003 installed; inset-rectangle defect fixed by patch 0004, verified by owner; ring-shaped shadow banding addressed by patch 0005, unverified).
 3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper.
 4. Bottom bar, FAB, timer mini-bar, scrim.
 5. Other screens (Tasks, Roadmap, Insights, Ideas, Settings, Alarms, Messages, Timer, Review).
 6. Sheets, dialogs, editors.
-Open risks: shadow under translucent fill may show a dark box on some devices (check on device; fallback border-only); no backdrop blur (Haze not approved).
+Open risks: no backdrop blur (Haze not approved). The earlier platform-shadow risk is resolved by the drawn shadow.
 
 ### Next steps
-1. Owner: apply patch 0004, build, check Home in dark and light: inset rectangles and grey cast gone; text readable; shadow/edge/sheen subtle; no cut-off shadow at card edges; scrolling smooth.
-2. Step 3: Home section cards (Foundation, Important, Normal, Extra as tinted glass; Ideas stays paper).
+1. Owner: apply patch 0005 (`git am`), build, install on OnePlus 8T. Check Home in dark and light: top circular buttons and Overview/NowNext cards show one smooth soft shadow with no rings; no inset rectangles; no cut-off shadow at card edges; scrolling smooth. Report the result so this document can be updated.
+2. Step 3: Home section cards (Foundation, Important, Normal, Extra as tinted glass; Ideas stays paper). Start only after patch 0005 is verified.
 3. Step 4: bottom bar, FAB, timer mini-bar, scrim (use `chrome = true`).
 4. Later: other screens, sheets/dialogs, Stage 3 profile/onboarding (greeting name), Stage 4 interaction, backup of profile decision.
 
