@@ -267,9 +267,7 @@ fun EditorScaffold(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-            }
+            GlassBackButton(onBack)
             Text(title, style = DfType.title, color = Df.colors.textPrimary, modifier = Modifier.weight(1f).padding(start = 4.dp))
             Box(
                 Modifier
@@ -297,7 +295,7 @@ fun EditorScaffold(
 /** Small "open" affordance used on Home card headers. */
 @Composable
 fun OpenChevron(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier.size(40.dp).pressable(onClick = onClick), contentAlignment = Alignment.Center) {
+    Box(modifier.size(48.dp).pressable(onClick = onClick), contentAlignment = Alignment.Center) {
         Icon(Icons.Rounded.ChevronRight, "Open", tint = Df.colors.textSecondary, modifier = Modifier.size(22.dp))
     }
 }

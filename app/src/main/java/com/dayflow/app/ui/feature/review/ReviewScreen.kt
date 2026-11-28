@@ -38,9 +38,7 @@ fun ReviewScreen(onBack: () -> Unit, modifier: Modifier = Modifier, vm: ReviewVi
     SectionTheme(DaySection.FOUNDATION) {
         Column(modifier.fillMaxSize().statusBarsPadding().imePadding()) {
             Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-                }
+                GlassBackButton(onBack)
                 Column(Modifier.weight(1f).padding(start = 4.dp)) {
                     Text("DAILY REVIEW", style = DfType.label, color = Df.section.accent)
                     Text(dayLabel(day, vm.today) + " · " + dayLongLabel(day), style = DfType.bodySmall, color = Df.colors.textSecondary, maxLines = 1)
@@ -88,10 +86,9 @@ private fun formatTracked(ms: Long): String {
 private fun Hero(d: DayDetail, isToday: Boolean) {
     val s = d.summary
     val accent = Df.section.accent
-    val shape = RoundedCornerShape(22.dp)
+    val shape = DfShapes.glass
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(if (s.dayComplete) accent.copy(alpha = 0.14f) else Df.colors.surface)
-            .border(1.dp, if (s.dayComplete) accent.copy(alpha = 0.5f) else Df.colors.hairline, shape).padding(20.dp),
+        Modifier.fillMaxWidth().glass(shape, tint = if (s.dayComplete) accent else Color.Unspecified).padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ProgressRing(s.score, Modifier.size(96.dp), strokeWidth = 10.dp, colors = BrandRing) {
@@ -124,9 +121,9 @@ private fun Hero(d: DayDetail, isToday: Boolean) {
 private fun Categories(d: DayDetail) {
     val s = d.summary
     val dark = Df.colors.isDark
-    val shape = RoundedCornerShape(18.dp)
+    val shape = DfShapes.tile
     Column(
-        Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp),
+        Modifier.fillMaxWidth().glass(shape).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         CategoryRow("Daily foundation", s.habitsDone, s.habitsTotal, sectionPalette(DaySection.FOUNDATION, dark).accent)
@@ -152,8 +149,8 @@ private fun CategoryRow(label: String, done: Int, total: Int, color: Color) {
 
 @Composable
 private fun MiniFact(label: String, value: String, modifier: Modifier) {
-    val shape = RoundedCornerShape(18.dp)
-    Column(modifier.clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp)) {
+    val shape = DfShapes.tile
+    Column(modifier.glass(shape).padding(16.dp)) {
         Text(label.uppercase(), style = DfType.label, color = Df.colors.textTertiary)
         Spacer(Modifier.height(4.dp))
         Text(value, style = DfType.title, color = Df.colors.textPrimary)
@@ -164,8 +161,8 @@ private fun MiniFact(label: String, value: String, modifier: Modifier) {
 @Composable
 private fun ItemList(title: String, items: List<DetailItem>, accent: Color) {
     if (items.isEmpty()) return
-    val shape = RoundedCornerShape(18.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp)) {
+    val shape = DfShapes.tile
+    Column(Modifier.fillMaxWidth().glass(shape).padding(16.dp)) {
         Text(title.uppercase(), style = DfType.label, color = accent)
         Spacer(Modifier.height(8.dp))
         items.sortedByDescending { it.done }.forEach { it ->

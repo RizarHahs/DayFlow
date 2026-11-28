@@ -9,6 +9,8 @@ object DfShapes {
     val card = RoundedCornerShape(14.dp)
     val panel = RoundedCornerShape(22.dp)
     val glass = RoundedCornerShape(24.dp)
+    /** Compact glass rows and inner cards (list rows, settings rows, review cards). */
+    val tile = RoundedCornerShape(18.dp)
     val sheet = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
 }
 

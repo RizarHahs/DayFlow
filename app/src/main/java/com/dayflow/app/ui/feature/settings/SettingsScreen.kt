@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.settings
 
+import com.dayflow.app.ui.components.glass
+import com.dayflow.app.ui.components.GlassBackButton
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -73,9 +75,7 @@ fun SettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier, vm: Settin
     SectionTheme(DaySection.FOUNDATION) {
         Column(modifier.fillMaxSize().statusBarsPadding()) {
             Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-                }
+                GlassBackButton(onBack)
                 Text("Settings", style = DfType.title, color = Df.colors.textPrimary, modifier = Modifier.padding(start = 4.dp))
             }
             Column(
@@ -223,7 +223,7 @@ fun SettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier, vm: Settin
 private fun Summary(s: SetupStatus) {
     val good = sectionPalette(DaySection.FOUNDATION, Df.colors.isDark).accent
     val c = if (s.alarmsReliable) good else PriorityColors.High
-    val shape = RoundedCornerShape(16.dp)
+    val shape = DfShapes.tile
     Column(Modifier.fillMaxWidth().clip(shape).background(c.copy(alpha = 0.12f)).border(1.dp, c.copy(alpha = 0.4f), shape).padding(16.dp)) {
         Text(
             if (s.alarmsReliable) "Core permissions are in place" else "Alarms are not guaranteed yet",
@@ -241,9 +241,9 @@ private fun Summary(s: SetupStatus) {
 private fun CheckRow(ok: Boolean, title: String, body: String, action: String, onAction: () -> Unit) {
     val good = sectionPalette(DaySection.FOUNDATION, Df.colors.isDark).accent
     val c = if (ok) good else PriorityColors.High
-    val shape = RoundedCornerShape(16.dp)
+    val shape = DfShapes.tile
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(14.dp),
+        Modifier.fillMaxWidth().glass(shape).padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(32.dp).clip(CircleShape).background(c.copy(alpha = 0.18f)), contentAlignment = Alignment.Center) {
@@ -267,8 +267,8 @@ private fun CheckRow(ok: Boolean, title: String, body: String, action: String, o
 
 @Composable
 private fun OemCard(s: SetupStatus, onOpenAutoLaunch: () -> Unit) {
-    val shape = RoundedCornerShape(16.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp)) {
+    val shape = DfShapes.tile
+    Column(Modifier.fillMaxWidth().glass(shape).padding(16.dp)) {
         Text(if (s.isOnePlus) "OnePlus / OxygenOS extra steps" else "Manufacturer battery settings", style = DfType.titleSmall, color = Df.colors.textPrimary)
         Spacer(Modifier.height(6.dp))
         Text(
@@ -295,8 +295,9 @@ private fun OemCard(s: SetupStatus, onOpenAutoLaunch: () -> Unit) {
 @Composable
 private fun ActionButton(text: String, onClick: () -> Unit) {
     Box(
-        Modifier.fillMaxWidth().heightIn(min = 54.dp).clip(RoundedCornerShape(50)).background(Df.colors.raised)
-            .border(1.dp, Df.colors.hairline, RoundedCornerShape(50)).pressable(onClick = onClick),
+        Modifier.fillMaxWidth().heightIn(min = 54.dp)
+            .pressable(onClick = onClick)
+            .glass(RoundedCornerShape(50)),
         contentAlignment = Alignment.Center,
     ) { Text(text, style = DfType.bodyMedium, color = Df.colors.textPrimary) }
 }

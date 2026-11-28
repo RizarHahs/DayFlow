@@ -198,7 +198,7 @@ fun DayflowRoot(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(Color(0xD90E0F12))
+                        .background(if (Df.colors.isDark) Color(0xD90E0F12) else Color(0xE6F1F2F6))
                         .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                             fabExpanded = false
                         }

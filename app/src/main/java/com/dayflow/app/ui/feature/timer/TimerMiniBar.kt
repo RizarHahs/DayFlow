@@ -1,5 +1,6 @@
 package com.dayflow.app.ui.feature.timer
 
+import com.dayflow.app.ui.components.glass
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -40,10 +41,9 @@ fun TimerMiniBar(
         val paused = session.state == TimerState.PAUSED
         val shape = RoundedCornerShape(22.dp)
         Row(
-            modifier.fillMaxWidth().height(60.dp).clip(shape)
-                .background(Df.colors.raised.copy(alpha = 0.97f))
-                .border(1.dp, Df.section.accent.copy(alpha = 0.4f), shape)
+            modifier.fillMaxWidth().height(60.dp)
                 .pressable(pressedScale = 0.99f, haptic = null, onClick = onOpen)
+                .glass(shape, tint = Df.section.accent, raised = true, chrome = true)
                 .padding(start = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

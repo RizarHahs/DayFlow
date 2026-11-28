@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.home
 
+import com.dayflow.app.ui.components.doneState
+import com.dayflow.app.ui.components.glass
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -35,13 +37,10 @@ fun FoundationCard(habits: List<Habit>, onToggle: (Long) -> Unit, onOpen: () -> 
         val p = Df.section
         val done = habits.count { it.done }
         val total = habits.size
-        val shape = RoundedCornerShape(26.dp)
         Column(
             modifier
                 .fillMaxWidth()
-                .clip(shape)
-                .background(Brush.verticalGradient(listOf(p.deep, Df.colors.surface)))
-                .border(1.dp, p.accent.copy(alpha = 0.18f), shape)
+                .glass(tint = p.accent)
                 .padding(20.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -109,6 +108,7 @@ private fun HabitRow(habit: Habit, onToggle: (Long) -> Unit) {
         Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
+            .doneState(habit.done)
             .pressable(pressedScale = 0.98f, haptic = HapticFeedbackType.LongPress) { onToggle(habit.id) },
         verticalAlignment = Alignment.CenterVertically,
     ) {

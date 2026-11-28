@@ -1,5 +1,6 @@
 package com.dayflow.app.ui.feature.insights
 
+import com.dayflow.app.ui.components.glass
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -128,8 +129,7 @@ private fun PeriodNav(title: String, canForward: Boolean, onBack: () -> Unit, on
 
 @Composable
 private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    val shape = RoundedCornerShape(18.dp)
-    Column(modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp), content = content)
+    Column(modifier.fillMaxWidth().glass(DfShapes.tile).padding(16.dp), content = content)
 }
 
 @Composable

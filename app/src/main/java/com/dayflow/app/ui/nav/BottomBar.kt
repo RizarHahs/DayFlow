@@ -1,5 +1,9 @@
 package com.dayflow.app.ui.nav
 
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import com.dayflow.app.ui.components.glass
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -27,9 +31,7 @@ fun DayflowBottomBar(current: Tab, onSelect: (Tab) -> Unit, modifier: Modifier =
         modifier
             .fillMaxWidth()
             .height(68.dp)
-            .clip(shape)
-            .background(Df.colors.surface.copy(alpha = 0.94f))
-            .border(1.dp, Df.colors.hairline, shape)
+            .glass(shape, raised = true, chrome = true)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -46,7 +48,8 @@ fun DayflowBottomBar(current: Tab, onSelect: (Tab) -> Unit, modifier: Modifier =
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .pressable(pressedScale = 0.94f) { onSelect(tab) },
+                    .semantics { this.selected = selected }
+                    .pressable(pressedScale = 0.94f, role = Role.Tab) { onSelect(tab) },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {

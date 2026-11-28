@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.home
 
+import com.dayflow.app.ui.components.doneState
+import com.dayflow.app.ui.components.glass
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +42,6 @@ fun NormalCard(
 ) {
     SectionTheme(DaySection.NORMAL) {
         val p = Df.section
-        val shape = RoundedCornerShape(18.dp)
         val done = targets.count { it.done }
         val fraction by animateFloatAsState(
             if (targets.isEmpty()) 0f else done.toFloat() / targets.size, label = "normalBar",
@@ -51,9 +52,7 @@ fun NormalCard(
         Column(
             modifier
                 .fillMaxWidth()
-                .clip(shape)
-                .background(Df.colors.surface)
-                .border(1.dp, Df.colors.hairline, shape)
+                .glass(tint = p.accent)
                 .padding(bottom = 14.dp)
         ) {
             Row(
@@ -98,6 +97,7 @@ private fun TargetRow(t: TaskItem, onToggle: (Long) -> Unit) {
         Modifier
             .fillMaxWidth()
             .heightIn(min = 46.dp)
+            .doneState(t.done)
             .pressable(pressedScale = 0.985f, haptic = HapticFeedbackType.LongPress) { onToggle(t.id) },
         verticalAlignment = Alignment.CenterVertically,
     ) {

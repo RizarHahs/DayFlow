@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.home
 
+import com.dayflow.app.ui.components.doneState
+import com.dayflow.app.ui.components.glass
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -41,7 +43,6 @@ fun priorityColor(p: Priority?): Color = when (p) {
 fun ImportantCard(tasks: List<TaskItem>, onToggle: (Long) -> Unit, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     SectionTheme(DaySection.IMPORTANT) {
         val p = Df.section
-        val shape = RoundedCornerShape(16.dp)
         // Open first (by start time), then completed.
         val ordered = tasks.sortedWith(compareBy<TaskItem> { it.done }.thenBy { it.startMinute ?: Int.MAX_VALUE })
         val done = tasks.count { it.done }
@@ -49,9 +50,7 @@ fun ImportantCard(tasks: List<TaskItem>, onToggle: (Long) -> Unit, onOpen: () ->
             modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
-                .clip(shape)
-                .background(Brush.horizontalGradient(listOf(p.deep.copy(alpha = 0.7f), Df.colors.surface)))
-                .border(1.dp, p.accent.copy(alpha = 0.16f), shape)
+                .glass(tint = p.accent)
         ) {
             // Ember edge: the card's visual "weight".
             Box(Modifier.width(5.dp).fillMaxHeight().background(Brush.verticalGradient(listOf(PriorityColors.Critical, p.accent))))
@@ -90,6 +89,7 @@ private fun TimelineRow(t: TaskItem, first: Boolean, last: Boolean, onToggle: (L
         Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
+            .doneState(t.done)
             .pressable(pressedScale = 0.985f, haptic = HapticFeedbackType.LongPress) { onToggle(t.id) },
     ) {
         Text(

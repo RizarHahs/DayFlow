@@ -192,12 +192,10 @@ private fun SlotRow(slot: RoadmapSlot, first: Boolean, last: Boolean, onClick: (
             }
         }
         Spacer(Modifier.width(10.dp))
-        val shape = RoundedCornerShape(14.dp)
         Column(
-            Modifier.weight(1f).padding(vertical = 5.dp).clip(shape)
-                .background(if (slot.status == SlotStatus.CURRENT) Df.section.soft else Df.colors.surface)
-                .border(1.dp, if (slot.status == SlotStatus.CURRENT) c else Df.colors.hairline, shape)
+            Modifier.weight(1f).padding(vertical = 5.dp)
                 .pressable(pressedScale = 0.985f, haptic = null, onClick = onClick)
+                .glass(DfShapes.tile, tint = if (slot.status == SlotStatus.CURRENT) c else Color.Unspecified)
                 .padding(14.dp),
         ) {
             Text(

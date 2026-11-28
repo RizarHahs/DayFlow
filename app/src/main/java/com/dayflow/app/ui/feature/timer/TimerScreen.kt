@@ -32,9 +32,7 @@ fun TimerScreen(vm: TimerViewModel, onBack: () -> Unit, modifier: Modifier = Mod
     SectionTheme(DaySection.NORMAL) {
         Column(modifier.fillMaxSize().statusBarsPadding()) {
             Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-                }
+                GlassBackButton(onBack)
                 Text("Timer", style = DfType.title, color = Df.colors.textPrimary, modifier = Modifier.padding(start = 4.dp))
             }
             val s = session

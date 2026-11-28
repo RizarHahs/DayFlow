@@ -42,11 +42,14 @@ This section should be updated as meaningful development work is completed.
 ### Changed
 
 - Light theme background shifted to a cooler neutral.
+- (Patch 0006, unverified) Glass design applied to Home section cards (Foundation, Important, Normal, Extra), bottom bar, timer mini-bar, Tasks rows, Alarms, Messages, Settings, Review, Insights and Roadmap cards. Corner radii unified (24dp cards, 18dp tiles). Back buttons use a shared glass `GlassBackButton`. FAB scrim follows the theme. Visual only.
+- (Patch 0006, unverified) Accessibility: tappable surfaces expose a button role, completion rows announce Completed / Not completed, bottom bar and Tasks lane tabs announce the selected tab, "open" chevrons have a 48dp touch target.
 
 
 
 ### Fixed
 
+- (Patch 0006, unverified) Extra card text was unreadable in the light theme (dark text on a fixed dark purple card); the card now uses theme-aware glass.
 - Sharp lighter inset rectangles and grey cast inside glass cards and round buttons, caused by the platform elevation shadow under translucent fills; replaced with a drawn outside-only shadow (verified by owner on OnePlus 8T).
 - (Patch 0005, unverified) Three visible concentric opacity rings around round glass buttons and cards, caused by 3 equal-opacity strokes in the drawn shadow; replaced with 12 thin layers spaced for a smooth quadratic falloff. Only `softShadow` in `ui/components/Glass.kt` changed.
 

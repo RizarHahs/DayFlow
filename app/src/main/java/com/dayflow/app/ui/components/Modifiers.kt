@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 
 /**
  * Press-scale + haptic click used by every tappable surface.
@@ -23,6 +26,7 @@ fun Modifier.pressable(
     enabled: Boolean = true,
     pressedScale: Float = 0.97f,
     haptic: HapticFeedbackType? = HapticFeedbackType.TextHandleMove,
+    role: Role? = Role.Button,
     onClick: () -> Unit,
 ): Modifier {
     val interaction = remember { MutableInteractionSource() }
@@ -35,8 +39,12 @@ fun Modifier.pressable(
     val feedback = LocalHapticFeedback.current
     return this
         .graphicsLayer { scaleX = scale; scaleY = scale }
-        .clickable(interactionSource = interaction, indication = null, enabled = enabled) {
+        .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = role) {
             if (haptic != null) feedback.performHapticFeedback(haptic)
             onClick()
         }
 }
+
+/** Screen-reader state for completion rows, read after the title: "Completed" / "Not completed". */
+fun Modifier.doneState(done: Boolean): Modifier =
+    semantics { stateDescription = if (done) "Completed" else "Not completed" }

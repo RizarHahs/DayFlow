@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.home
 
+import com.dayflow.app.ui.components.doneState
+import com.dayflow.app.ui.components.glass
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -43,16 +45,11 @@ fun ExtraCard(
 ) {
     SectionTheme(DaySection.EXTRA) {
         val p = Df.section
-        val shape = RoundedCornerShape(26.dp)
         val done = extras.count { it.done }
         Column(
             modifier
                 .fillMaxWidth()
-                .clip(shape)
-                .background(
-                    Brush.linearGradient(listOf(Color(0xFF2A1A56), Color(0xFF3A1650), Color(0xFF1A1226)))
-                )
-                .border(1.dp, Brush.linearGradient(ExtraGradient.map { it.copy(alpha = 0.55f) }), shape)
+                .glass(tint = p.accent)
                 .padding(20.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -122,7 +119,8 @@ private fun ExtraRow(t: TaskItem, onToggle: (Long) -> Unit) {
             .fillMaxWidth()
             .heightIn(min = 56.dp)
             .clip(rowShape)
-            .background(Color.White.copy(alpha = if (t.done) 0.04f else 0.08f))
+            .background(Df.colors.textPrimary.copy(alpha = if (t.done) 0.04f else 0.07f))
+            .doneState(t.done)
             .pressable(pressedScale = 0.98f, haptic = HapticFeedbackType.LongPress) {
                 if (!t.done) burst++ // celebrate only on completing, not on undo
                 onToggle(t.id)

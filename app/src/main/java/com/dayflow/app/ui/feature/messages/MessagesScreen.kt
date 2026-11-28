@@ -60,9 +60,7 @@ fun MessagesScreen(
     SectionTheme(DaySection.NORMAL) {
         Column(modifier.fillMaxSize().statusBarsPadding()) {
             Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-                }
+                GlassBackButton(onBack)
                 Column(Modifier.weight(1f).padding(start = 4.dp)) {
                     Text("SCHEDULED MESSAGES", style = DfType.label, color = Df.section.accent)
                     Text("WhatsApp reminders", style = DfType.title, color = Df.colors.textPrimary)
@@ -162,8 +160,8 @@ private fun Warning(title: String, body: String, action: String, onAction: () ->
 @Composable
 private fun WhatsAppStatus(a: com.dayflow.app.platform.whatsapp.WhatsAppAvailability) {
     val good = sectionPalette(DaySection.FOUNDATION, Df.colors.isDark).accent
-    val shape = RoundedCornerShape(14.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(14.dp)) {
+    val shape = DfShapes.tile
+    Column(Modifier.fillMaxWidth().glass(shape).padding(14.dp)) {
         Text("WHATSAPP ON THIS PHONE", style = DfType.label, color = Df.colors.textTertiary)
         Spacer(Modifier.height(6.dp))
         Text(
@@ -186,9 +184,9 @@ private fun WhatsAppStatus(a: com.dayflow.app.platform.whatsapp.WhatsAppAvailabi
 
 @Composable
 private fun OptionsCard(attention: Boolean, countryCode: String, onAttention: (Boolean) -> Unit, onCountryCode: (String) -> Unit) {
-    val shape = RoundedCornerShape(14.dp)
+    val shape = DfShapes.tile
     var code by remember(countryCode) { mutableStateOf(countryCode) }
-    Column(Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().glass(shape).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Attention Mode", style = DfType.bodyMedium, color = Df.colors.textPrimary)
@@ -227,12 +225,12 @@ private fun OptionsCard(attention: Boolean, countryCode: String, onAttention: (B
 private fun MessageCard(m: ScheduledMessage, today: Int, onEdit: () -> Unit, onDelete: () -> Unit) {
     val ctx = LocalContext.current
     val c = statusColor(m.status)
-    val shape = RoundedCornerShape(18.dp)
+    val shape = DfShapes.tile
     val openLabel = if (m.status == MessageStatus.SCHEDULED) "Open now" else "Open WhatsApp"
     val open = { ctx.startActivity(OpenWhatsAppActivity.intent(ctx, m.id)) }
     Column(
-        Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface)
-            .border(1.dp, if (m.status == MessageStatus.TRIGGERED || m.status == MessageStatus.FAILED) c.copy(alpha = 0.5f) else Df.colors.hairline, shape)
+        Modifier.fillMaxWidth()
+            .glass(shape, tint = if (m.status == MessageStatus.TRIGGERED || m.status == MessageStatus.FAILED) c else Color.Unspecified)
             .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

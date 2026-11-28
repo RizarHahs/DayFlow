@@ -1,5 +1,7 @@
 package com.dayflow.app.ui.feature.alarm
 
+import com.dayflow.app.ui.components.glass
+import com.dayflow.app.ui.components.GlassBackButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -60,9 +62,7 @@ fun AlarmsScreen(
     SectionTheme(DaySection.IMPORTANT) {
         Column(modifier.fillMaxSize().statusBarsPadding()) {
             Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).pressable(haptic = null, onClick = onBack), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary)
-                }
+                GlassBackButton(onBack)
                 Text("Alarms", style = DfType.title, color = Df.colors.textPrimary, modifier = Modifier.weight(1f).padding(start = 4.dp))
                 Row(
                     Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(50)).background(Df.section.accent)
@@ -99,7 +99,7 @@ fun AlarmsScreen(
 
 @Composable
 private fun HealthBanner(reliable: Boolean, attention: Int, onFix: () -> Unit) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = DfShapes.tile
     val c = if (reliable) sectionPalette(DaySection.FOUNDATION, Df.colors.isDark).accent else PriorityColors.High
     Row(
         Modifier.fillMaxWidth().clip(shape).background(c.copy(alpha = 0.12f)).border(1.dp, c.copy(alpha = 0.4f), shape)
@@ -123,8 +123,7 @@ private fun HealthBanner(reliable: Boolean, attention: Int, onFix: () -> Unit) {
 
 @Composable
 private fun NextCard(a: Alarm) {
-    val shape = RoundedCornerShape(16.dp)
-    Column(Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape).padding(16.dp)) {
+    Column(Modifier.fillMaxWidth().glass(DfShapes.tile, tint = Df.section.accent, raised = true).padding(16.dp)) {
         Text("NEXT ALARM", style = DfType.label, color = Df.section.accent)
         Spacer(Modifier.height(4.dp))
         Text(
@@ -137,11 +136,13 @@ private fun NextCard(a: Alarm) {
 @Composable
 private fun AlarmCard(row: AlarmRow, onClick: () -> Unit, onToggle: (Boolean) -> Unit) {
     val a = row.alarm
-    val shape = RoundedCornerShape(18.dp)
+    val shape = DfShapes.tile
     val on = a.enabled
     Row(
-        Modifier.fillMaxWidth().clip(shape).background(Df.colors.surface).border(1.dp, Df.colors.hairline, shape)
-            .pressable(pressedScale = 0.99f, haptic = null, onClick = onClick).padding(start = 18.dp, end = 12.dp, top = 14.dp, bottom = 14.dp),
+        Modifier.fillMaxWidth()
+            .pressable(pressedScale = 0.99f, haptic = null, onClick = onClick)
+            .glass(shape)
+            .padding(start = 18.dp, end = 12.dp, top = 14.dp, bottom = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {

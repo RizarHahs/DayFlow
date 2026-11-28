@@ -1,5 +1,6 @@
 package com.dayflow.app.ui.feature.tasks
 
+import com.dayflow.app.ui.theme.DfShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -29,7 +30,7 @@ import com.dayflow.app.ui.theme.Df
 import com.dayflow.app.ui.theme.DfType
 import com.dayflow.app.ui.theme.PriorityColors
 
-private val rowShape = RoundedCornerShape(14.dp)
+private val rowShape = DfShapes.tile
 
 @Composable
 private fun RowCard(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
@@ -37,9 +38,7 @@ private fun RowCard(modifier: Modifier = Modifier, content: @Composable RowScope
         modifier
             .fillMaxWidth()
             .heightIn(min = 60.dp)
-            .clip(rowShape)
-            .background(Df.colors.surface)
-            .border(1.dp, Df.colors.hairline, rowShape)
+            .glass(rowShape)
             .padding(start = 4.dp, end = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
         content = content,
@@ -66,7 +65,7 @@ fun TaskRow(
 ) {
     RowCard(modifier) {
         Box(
-            Modifier.size(52.dp).pressable(haptic = HapticFeedbackType.LongPress, onClick = onToggle),
+            Modifier.size(52.dp).doneState(task.done).pressable(haptic = HapticFeedbackType.LongPress, onClick = onToggle),
             contentAlignment = Alignment.Center,
         ) { CheckNode(task.done, size = 26.dp, shape = if (task.kind == TaskKind.NORMAL) RoundedCornerShape(8.dp) else CircleShape) }
 
@@ -115,7 +114,7 @@ fun HabitRow(
 ) {
     RowCard(modifier) {
         Box(
-            Modifier.size(52.dp).pressable(enabled = habit.dueToday, haptic = HapticFeedbackType.LongPress, onClick = onToggle),
+            Modifier.size(52.dp).doneState(habit.done).pressable(enabled = habit.dueToday, haptic = HapticFeedbackType.LongPress, onClick = onToggle),
             contentAlignment = Alignment.Center,
         ) {
             CheckNode(habit.done, size = 26.dp, color = if (habit.dueToday) Df.section.accent else Df.colors.textTertiary)

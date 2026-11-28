@@ -13,7 +13,7 @@
 - **Current version code:** 6
 - **Development status:** Active development
 - **Distribution:** GitHub Releases
-- **Current checkpoint:** Glassmorphism redesign — Home top section; patch 0005 (shadow refinement) prepared, awaiting owner verification, on branch `feature/glass-redesign`
+- **Current checkpoint:** Glassmorphism redesign — patch 0006 (comprehensive UI refinement) prepared on top of `445c0b6`, awaiting owner build and visual verification, on branch `feature/glass-redesign`
 
 DAYFLOW is an existing Android productivity application. Development must continue from the existing codebase.
 
@@ -128,12 +128,25 @@ Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DA
   - **Owner feedback on device:** inset-rectangle problem is FIXED. New problem: circular glass buttons show about three visible concentric opacity rings around their outer edge; the shadow looks segmented, not smooth.
   - Cause of the rings (source-level): the 3 strokes had equal opacity (alpha/3) and evenly spaced widths, so the shadow was 3/3, 2/3 and 1/3 opaque in three flat bands with hard steps between them.
 
-- Patch 0005 (`0005-glass-shadow-refinement.patch`; UNVERIFIED — not compiled or run by the assistant; awaiting owner build and visual check): smooth shadow.
+- Patch 0005 (applied by owner as commit `445c0b6`; the assistant that wrote it did not compile or run it, and the owner's visual verdict was not reported to the assistant that prepared patch 0006): smooth shadow.
   - Only `softShadow` in `ui/components/Glass.kt` changed. Still outside-only (`ClipOp.Difference`), so no inset rectangles can return. No token, fill, border, sheen or shade change. Shadow reach is unchanged (spread + 0.3 x spread offset down), so no new clipping risk.
   - Now `SHADOW_LAYERS = 12` strokes, each with the same tiny opacity, spaced so layer m reaches `spread * (1 - sqrt((m-1)/N))`. Layers covering a point at distance d are about `N * (1 - d/spread)^2`: quadratic ease-out, strongest at the edge, fading to zero with zero slope at the outer limit. Per-layer alpha is `1 - (1 - alpha)^(1/N)` so the edge opacity equals the token value (alpha compositing is multiplicative).
   - Offline arithmetic check: largest opacity step between neighbouring layers is about 1.1% (light theme) and 2.9% (dark theme) of full black/ink, down from 33-50% steps in patch 0004.
   - No blur, RenderEffect or bitmap cache; plain Canvas strokes, recorded once and replayed. Cost is 12 stroked paths per glass surface instead of 3.
   - Fallback if still visible on device: raise `SHADOW_LAYERS` to 16-20; if cost is a problem, lower to 8-10. Next alternative if strokes are not good enough: render the shadow once into an Alpha8 ImageBitmap with `BlurMaskFilter` (software canvas) and draw it clipped, at the cost of extra memory per card.
+
+- Patch 0006 (`0006-comprehensive-ui-refinement.patch`, base `445c0b6`; UNVERIFIED — see Verification): comprehensive UI/UX refinement. Visual and accessibility only; no logic, state, navigation, database, scheduling, backup or signing code touched.
+  - Audit findings (source-level): (1) Only the Home top section used glass; Home section cards, bottom bar, timer mini-bar and every list/settings/review/alarm/message card were flat `surface` + hairline boxes with six different corner radii (14/16/18/22/26). (2) `ExtraCard` used a hard-coded dark purple gradient and white-alpha rows but `Df.colors.textPrimary` text, so text was dark ink on dark purple in the light theme (unreadable). (3) Back buttons were 8 copies of a bare 48dp icon with no surface, unlike the glass Home icons. (4) Every `pressable` surface had no semantics role, completion rows did not expose done/not-done state to screen readers, bottom-bar and lane tabs did not expose the selected state. (5) `OpenChevron` touch target was 40dp. (6) The FAB scrim was near-black in the light theme.
+  - Shared components: `DfShapes.tile` (18dp) for compact glass rows; `GlassBackButton` (42dp glass disc in a 48dp target) in `ui/components/Glass.kt`; `pressable` gained `role` (default `Role.Button`); new `Modifier.doneState(done)` ("Completed" / "Not completed"); `OpenChevron` target 48dp.
+  - Home: Foundation, Important, Normal and Extra cards now use `Modifier.glass(tint = section accent)` (24dp, same radius as Overview/NowNext). Internal layouts, rows, rings, rail and logic unchanged. Extra card is now readable in both themes. Ideas card stays paper.
+  - Bottom bar and timer mini-bar: `glass(chrome = true, raised = true)`; bar tabs expose `selected` + `Role.Tab`. FAB scrim is theme-aware (light theme uses a light scrim). FAB keeps its opaque platform shadow (opaque fill, so the inset-rectangle bug does not apply).
+  - Tasks: task and habit rows are glass tiles; lane tabs expose `selected` + `Role.Tab`; check targets expose done state.
+  - Alarms: next-alarm card (accent tint, raised) and alarm cards are glass tiles. Messages: status, options and message cards are glass tiles (triggered/failed messages tinted with their status colour instead of a coloured outline). Settings: check rows, OEM card and action buttons are glass. Review: hero (tinted when day complete), categories, mini facts and item lists are glass. Insights cards and Roadmap slot cards (current slot tinted) are glass. Back buttons on Alarms, Messages, Settings, Timer, Review and all editors (`EditorScaffold`) use `GlassBackButton`.
+  - Order rule used on tappable glass surfaces: `.pressable(...)` before `.glass(...)` so the press-scale moves the whole surface, as `GlassIconButton` does.
+  - Intentionally left alone: status banners with coloured outlines (alarm health, settings summary, notification hint), Ideas screen and Ideas card (paper style), editors' fields, dialogs and sheets, QuickAddSheet, FAB buttons, Roadmap/Insights date-navigation buttons, all view models, repositories, entities, DAOs, alarm/timer/reminder/WhatsApp platform code, backup/restore, navigation graph, Gradle and signing.
+  - Verification performed by the assistant: base commit confirmed as `445c0b6` on `origin/feature/glass-redesign`; every edit applied by an asserting script (each replacement matched exactly once); full diff read; bracket balance checked on all 20 changed files; `kotlinc 2.0.21` run on the changed files reports zero syntax errors. NOT performed: Gradle build (Compose/Android dependencies and `keystore.properties` are not available to the assistant), unit tests, any device or emulator test. Remaining risk is therefore a possible type/import error that only Android Studio would show.
+  - What to check on the OnePlus 8T: Home in dark and light (all four section cards, especially Extra in light), bottom bar and FAB open/close scrim in both themes, Tasks lane tabs and row drag-reorder, Alarms, Messages, Settings, Review, Insights, Roadmap, timer mini-bar. Look for: shadow bleeding into neighbouring rows, text contrast on tinted glass, scroll smoothness on long Tasks lists (each glass surface draws 12 stroked shadow layers), back button size.
+  - If scrolling is slow on long lists: lower `SHADOW_LAYERS` in `ui/components/Glass.kt`, or give `TaskRow` a flat variant.
 
 ### Design references (owner-supplied)
 Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp radii; diffuse shadows; floating pill nav with filled circular selected item; circular avatars and circular "+" buttons. App default theme is DARK, so both themes must be supported; light follows the references most closely.
@@ -141,17 +154,17 @@ Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp
 ### Screen integration plan
 1. Ambient backdrop + chrome variant (done, verified by owner).
 2. Home top section: top icons, Overview, NowNext, banner, Review button (patch 0003 installed; inset-rectangle defect fixed by patch 0004, verified by owner; ring-shaped shadow banding addressed by patch 0005, unverified).
-3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper.
-4. Bottom bar, FAB, timer mini-bar, scrim.
-5. Other screens (Tasks, Roadmap, Insights, Ideas, Settings, Alarms, Messages, Timer, Review).
-6. Sheets, dialogs, editors.
+3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper. (patch 0006, unverified)
+4. Bottom bar, timer mini-bar, scrim (patch 0006, unverified). FAB unchanged on purpose.
+5. Other screens: Tasks, Roadmap, Insights, Settings, Alarms, Messages, Timer back button, Review done in patch 0006 (unverified); Ideas stays paper.
+6. Sheets, dialogs, editors (fields, QuickAddSheet, AlertDialogs, pickers): not started.
 Open risks: no backdrop blur (Haze not approved). The earlier platform-shadow risk is resolved by the drawn shadow.
 
 ### Next steps
-1. Owner: apply patch 0005 (`git am`), build, install on OnePlus 8T. Check Home in dark and light: top circular buttons and Overview/NowNext cards show one smooth soft shadow with no rings; no inset rectangles; no cut-off shadow at card edges; scrolling smooth. Report the result so this document can be updated.
-2. Step 3: Home section cards (Foundation, Important, Normal, Extra as tinted glass; Ideas stays paper). Start only after patch 0005 is verified.
-3. Step 4: bottom bar, FAB, timer mini-bar, scrim (use `chrome = true`).
-4. Later: other screens, sheets/dialogs, Stage 3 profile/onboarding (greeting name), Stage 4 interaction, backup of profile decision.
+1. Owner: apply patch 0006 (`git am`), build, install on OnePlus 8T over the existing app (do not uninstall), check the list under patch 0006 above, then report what looks wrong. If the build fails, send the Android Studio error text; the likely cause is a missing import or a type mismatch in one of the 20 changed files.
+2. After verification: push the verified commits to `feature/glass-redesign`, then update this file with the owner's result.
+3. Next design step: sheets, dialogs and editors (stage 6): `DfTextField`/`ValueRow` fields, `QuickAddSheet`, AlertDialogs, date/time pickers, `RowMenu` dropdown.
+4. Later: Stage 3 profile/onboarding (greeting name), Stage 4 interaction, backup of profile decision, merge branch to main and release.
 
 ---
 

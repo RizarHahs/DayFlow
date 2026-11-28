@@ -1,5 +1,8 @@
 package com.dayflow.app.ui.components
 
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -165,6 +168,19 @@ fun GlassIconButton(
         contentAlignment = Alignment.Center,
         content = content,
     )
+}
+
+/** Back button for full-screen routes: 42dp glass disc inside a 48dp touch target. */
+@Composable
+fun GlassBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(48.dp).pressable(haptic = null, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.size(42.dp).glass(CircleShape), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.ArrowBack, "Back", tint = Df.colors.textPrimary, modifier = Modifier.size(22.dp))
+        }
+    }
 }
 
 /**

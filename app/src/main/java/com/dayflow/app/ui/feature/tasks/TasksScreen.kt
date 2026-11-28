@@ -1,5 +1,8 @@
 package com.dayflow.app.ui.feature.tasks
 
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -87,7 +90,8 @@ private fun LaneTabs(selected: Lane, onSelect: (Lane) -> Unit, modifier: Modifie
                     .clip(RoundedCornerShape(50))
                     .background(if (on) accent.copy(alpha = 0.18f) else androidx.compose.ui.graphics.Color.Transparent)
                     .border(1.dp, if (on) accent else Df.colors.hairline, RoundedCornerShape(50))
-                    .pressable { onSelect(l) },
+                    .semantics { this.selected = on }
+                    .pressable(role = Role.Tab) { onSelect(l) },
                 contentAlignment = Alignment.Center,
             ) { Text(l.label, style = DfType.bodySmall, color = if (on) accent else Df.colors.textSecondary) }
         }
