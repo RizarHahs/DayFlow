@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.sp
 import com.dayflow.app.domain.model.CategoryProgress
 import com.dayflow.app.domain.model.RoadmapEntry
 import com.dayflow.app.ui.DayUiState
+import com.dayflow.app.ui.components.GlassIconButton
 import com.dayflow.app.ui.components.ProgressRing
+import com.dayflow.app.ui.components.glass
 import com.dayflow.app.ui.components.formatMinute
 import com.dayflow.app.ui.components.minuteOfDay
 import com.dayflow.app.ui.components.pressable
@@ -133,13 +135,10 @@ private fun Header(now: LocalDateTime, score: Float) {
 @Composable
 private fun Overview(s: DayUiState) {
     val dark = Df.colors.isDark
-    val shape = RoundedCornerShape(18.dp)
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(Df.colors.surface)
-            .border(1.dp, Df.colors.hairline, shape)
+            .glass()
             .padding(vertical = 14.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
@@ -167,13 +166,10 @@ private fun NowNext(roadmap: List<RoadmapEntry>, minute: Int) {
     val sorted = roadmap.sortedBy { it.startMinute }
     val current = sorted.firstOrNull { minute >= it.startMinute && minute < it.endMinute }
     val next = sorted.firstOrNull { it.startMinute > minute }
-    val shape = RoundedCornerShape(18.dp)
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(Df.colors.raised)
-            .border(1.dp, Df.colors.hairline, shape)
+            .glass(raised = true)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -209,12 +205,13 @@ private fun NowNext(roadmap: List<RoadmapEntry>, minute: Int) {
 
 @Composable
 private fun DayCompleteBanner() {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = DfShapes.glass
     Row(
         Modifier
             .fillMaxWidth()
             .clip(shape)
             .background(Brush.horizontalGradient(listOf(Color(0xFF34D399), Color(0xFF38BDF8))))
+            .border(1.dp, Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.5f), Color.White.copy(alpha = 0.08f))), shape)
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -233,15 +230,19 @@ private fun DayCompleteBanner() {
 /** Alarms and Settings entry points. The amber dot means alarm permissions need attention. */
 @Composable
 private fun TopIcons(attention: Boolean, onMessages: () -> Unit, onAlarms: () -> Unit, onSettings: () -> Unit) {
-    Row(Modifier.fillMaxWidth().offset(y = (-6).dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(44.dp).pressable(haptic = null, onClick = onMessages), contentAlignment = Alignment.Center) {
-            Icon(Icons.Rounded.Chat, "Scheduled messages", tint = Df.colors.textPrimary, modifier = Modifier.size(24.dp))
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        GlassIconButton(onMessages) {
+            Icon(Icons.Rounded.Chat, "Scheduled messages", tint = Df.colors.textPrimary, modifier = Modifier.size(22.dp))
         }
-        Box(Modifier.size(44.dp).pressable(haptic = null, onClick = onAlarms), contentAlignment = Alignment.Center) {
-            Icon(Icons.Rounded.Alarm, "Alarms", tint = Df.colors.textPrimary, modifier = Modifier.size(24.dp))
+        GlassIconButton(onAlarms) {
+            Icon(Icons.Rounded.Alarm, "Alarms", tint = Df.colors.textPrimary, modifier = Modifier.size(22.dp))
         }
-        Box(Modifier.size(44.dp).pressable(haptic = null, onClick = onSettings), contentAlignment = Alignment.Center) {
-            Icon(Icons.Rounded.Settings, "Settings", tint = Df.colors.textPrimary, modifier = Modifier.size(24.dp))
+        GlassIconButton(onSettings) {
+            Icon(Icons.Rounded.Settings, "Settings", tint = Df.colors.textPrimary, modifier = Modifier.size(22.dp))
             if (attention) {
                 Box(
                     Modifier.align(Alignment.TopEnd).padding(top = 9.dp, end = 9.dp).size(9.dp)
@@ -256,11 +257,10 @@ private fun TopIcons(attention: Boolean, onMessages: () -> Unit, onAlarms: () ->
 @Composable
 private fun ReviewButton(dayComplete: Boolean, onClick: () -> Unit) {
     val c = sectionPalette(DaySection.FOUNDATION, Df.colors.isDark).accent
+    val shape = RoundedCornerShape(50)
+    val base = Modifier.fillMaxWidth().heightIn(min = 56.dp).pressable(onClick = onClick)
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).clip(RoundedCornerShape(50))
-            .background(if (dayComplete) c else Color.Transparent)
-            .border(1.dp, if (dayComplete) c else Df.colors.hairline, RoundedCornerShape(50))
-            .pressable(onClick = onClick).padding(horizontal = 20.dp),
+        (if (dayComplete) base.clip(shape).background(c) else base.glass(shape)).padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
     ) {
         Text(

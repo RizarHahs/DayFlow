@@ -2,11 +2,16 @@ package com.dayflow.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -16,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dayflow.app.ui.theme.Df
 import com.dayflow.app.ui.theme.DfShapes
@@ -54,6 +60,24 @@ fun GlassCard(
 ) {
     val base = if (onClick != null) modifier.pressable(pressedScale = 0.98f, haptic = null, onClick = onClick) else modifier
     Column(base.glass(shape, tint, raised).padding(contentPadding), content = content)
+}
+
+/** Round glass button (icon actions). Press-scale on the whole button; no haptic by default, like the old bare icons. */
+@Composable
+fun GlassIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = 44.dp,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    Box(
+        modifier
+            .size(size)
+            .pressable(haptic = null, onClick = onClick)
+            .glass(CircleShape),
+        contentAlignment = Alignment.Center,
+        content = content,
+    )
 }
 
 /**

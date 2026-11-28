@@ -35,11 +35,12 @@ This section should be updated as meaningful development work is completed.
 ### Added
 
 - (Branch `feature/glass-redesign`) Glass design tokens and `GlassCard` / `Modifier.glass` components (built and installed by owner).
-- (Branch `feature/glass-redesign`, unverified) Ambient glow backdrop and denser chrome glass variant.
+- (Branch `feature/glass-redesign`) Ambient glow backdrop and denser chrome glass variant (built and installed by owner).
+- (Branch `feature/glass-redesign`, unverified) `GlassIconButton`; Home top section (overview, now/next, top icons, day-complete banner, review button) restyled with glass. Visual only.
 
 ### Changed
 
-- (unverified) Light theme background shifted to a cooler neutral.
+- Light theme background shifted to a cooler neutral.
 
 
 

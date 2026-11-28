@@ -117,14 +117,16 @@ Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DA
 
 ### Done
 - Stage 2 glass foundation (commit 781060c): `ui/theme/Glass.kt` (tokens, `Df.glass`), `ui/components/Glass.kt` (`Modifier.glass`, `GlassCard`), `DfShapes.glass`. Owner-reported: Assemble BUILD SUCCESSFUL, signed release APK installed over existing app on OnePlus 8T, data preserved, no visible change (expected).
-- Step 1 of screen integration (UNVERIFIED — not compiled): `Modifier.ambientBackground()` (soft static colour glows, dark + light) now used by `DayflowRoot`; `chrome` option on `Modifier.glass` and `chromeTop/chromeBottom` tokens for bars/sheets; light theme background changed to cool `0xFFF1F2F6`.
+- Step 1 of screen integration (commit b1a7ff1; owner-reported: built, signed APK installed on OnePlus 8T, data preserved, ambient gradient visible and working): `Modifier.ambientBackground()` (soft static colour glows, dark + light) now used by `DayflowRoot`; `chrome` option on `Modifier.glass` and `chromeTop/chromeBottom` tokens for bars/sheets; light theme background changed to cool `0xFFF1F2F6`.
+
+- Step 2 / patch 0003 (UNVERIFIED — not compiled or run): Home top section migrated to glass. `Overview` and `NowNext` use `Modifier.glass` (NowNext raised); new reusable `GlassIconButton` (44dp glass circle, press-scale, no haptic) used for the three top icons, amber permission dot kept; `DayCompleteBanner` keeps gradient with glass rim and 24dp radius; `ReviewButton` is a glass pill until the day is complete, then solid accent. Files: `ui/components/Glass.kt`, `ui/feature/home/HomeScreen.kt`. No logic, state or navigation changed.
 
 ### Design references (owner-supplied)
 Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp radii; diffuse shadows; floating pill nav with filled circular selected item; circular avatars and circular "+" buttons. App default theme is DARK, so both themes must be supported; light follows the references most closely.
 
 ### Screen integration plan
-1. Ambient backdrop + chrome variant (done, unverified).
-2. Home top section: top icons, Overview, NowNext, banner, Review button.
+1. Ambient backdrop + chrome variant (done, verified by owner).
+2. Home top section: top icons, Overview, NowNext, banner, Review button (done in patch 0003, unverified).
 3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper.
 4. Bottom bar, FAB, timer mini-bar, scrim.
 5. Other screens (Tasks, Roadmap, Insights, Ideas, Settings, Alarms, Messages, Timer, Review).
@@ -132,9 +134,10 @@ Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp
 Open risks: shadow under translucent fill may show a dark box on some devices (check on device; fallback border-only); no backdrop blur (Haze not approved).
 
 ### Next steps
-1. Owner: apply patch, build, check Home background in dark and light, report.
-2. Then step 2 (Home top section).
-3. Later: Stage 3 profile/onboarding, Stage 4 interaction, backup of profile decision.
+1. Owner: apply patch 0003, build, check Home top section in dark and light. Specifically look for a dark box/halo around glass cards (shadow under translucent fill). If present: switch `Modifier.glass` to border-only or hand-drawn soft shadow.
+2. Step 3: Home section cards (Foundation, Important, Normal, Extra as tinted glass; Ideas stays paper).
+3. Step 4: bottom bar, FAB, timer mini-bar, scrim (use `chrome = true`).
+4. Later: other screens, sheets/dialogs, Stage 3 profile/onboarding (greeting name), Stage 4 interaction, backup of profile decision.
 
 ---
 
