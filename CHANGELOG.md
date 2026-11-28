@@ -36,7 +36,8 @@ This section should be updated as meaningful development work is completed.
 
 - (Branch `feature/glass-redesign`) Glass design tokens and `GlassCard` / `Modifier.glass` components (built and installed by owner).
 - (Branch `feature/glass-redesign`) Ambient glow backdrop and denser chrome glass variant (built and installed by owner).
-- (Branch `feature/glass-redesign`, unverified) `GlassIconButton`; Home top section (overview, now/next, top icons, day-complete banner, review button) restyled with glass. Visual only.
+- (Branch `feature/glass-redesign`) `GlassIconButton`; Home top section (overview, now/next, top icons, day-complete banner, review button) restyled with glass. Visual only (built and installed by owner).
+- (Branch `feature/glass-redesign`, unverified) Liquid-glass refinement: cool-tinted translucent fills, diagonal edge highlight, internal sheen, lower-rim shade, outside-only soft shadow.
 
 ### Changed
 
@@ -46,7 +47,7 @@ This section should be updated as meaningful development work is completed.
 
 ### Fixed
 
-- Nothing documented yet.
+- (unverified) Sharp lighter inset rectangles and grey cast inside glass cards and round buttons, caused by the platform elevation shadow under translucent fills; replaced with a drawn outside-only shadow.
 
 ### Removed
 

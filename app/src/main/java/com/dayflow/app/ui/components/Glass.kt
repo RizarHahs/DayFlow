@@ -15,12 +15,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dayflow.app.ui.theme.Df
@@ -39,13 +47,76 @@ fun Modifier.glass(
     val baseBottom = if (chrome) g.chromeBottom else g.fillBottom
     val top = if (tint == Color.Unspecified) baseTop else tint.copy(alpha = g.tintAlpha).compositeOver(baseTop)
     val bottom = if (tint == Color.Unspecified) baseBottom else tint.copy(alpha = g.tintAlpha * 0.6f).compositeOver(baseBottom)
-    val elevation = if (raised) g.shadowRaised else g.shadow
+    val spread = if (raised) g.shadowRaised else g.shadow
+    val shadowAlpha = if (raised) g.shadowAlpha * 1.25f else g.shadowAlpha
     return this
-        .shadow(elevation, shape, ambientColor = g.shadowColor, spotColor = g.shadowColor)
+        .softShadow(shape, g.shadowColor, spread, shadowAlpha)
         .clip(shape)
         .background(Brush.verticalGradient(listOf(top, bottom)))
-        .border(1.dp, Brush.verticalGradient(listOf(g.borderTop, g.borderBottom)), shape)
+        .drawBehind {
+            // Internal light: soft band along the top + small highlight in the top-left corner,
+            // and a faint shade along the lower rim so the surface reads as having thickness.
+            val bandH = size.height * 0.4f
+            drawRect(
+                Brush.verticalGradient(listOf(g.sheen, Color.Transparent), startY = 0f, endY = bandH),
+                size = Size(size.width, bandH),
+            )
+            drawRect(
+                Brush.radialGradient(
+                    listOf(g.sheen, Color.Transparent),
+                    center = Offset(size.width * 0.14f, 0f),
+                    radius = size.width * 0.5f,
+                )
+            )
+            val shadeH = size.height * 0.35f
+            drawRect(
+                Brush.verticalGradient(listOf(Color.Transparent, g.shade), startY = size.height - shadeH, endY = size.height),
+                topLeft = Offset(0f, size.height - shadeH),
+                size = Size(size.width, shadeH),
+            )
+        }
+        .border(1.dp, Brush.linearGradient(listOf(g.borderTop, g.borderBottom), start = Offset.Zero, end = Offset.Infinite), shape)
 }
+
+/**
+ * Soft shadow drawn only OUTSIDE [shape].
+ *
+ * Why not Modifier.shadow: it sets a platform elevation shadow. Android's renderer (HWUI) treats the
+ * surface as opaque unless the layer's own alpha < 1; a translucent *fill* does not count. For an opaque
+ * caster, Skia's shadow tessellator emits only a penumbra ring plus an inset convex umbra polygon and
+ * leaves that polygon as an unshadowed hole. Under a see-through fill the hole shows as a sharp lighter
+ * rectangle inside a grey rim.
+ *
+ * Here: a few widening strokes of the shape's outline, with the shape interior clipped out
+ * (ClipOp.Difference), so nothing is ever painted under the glass. Draw modifiers are not clipped to
+ * layout bounds; only an ancestor that clips would cut it (LazyColumn clips at its viewport, and the
+ * shadow reach, spread + ~0.3*spread, stays inside the 16dp list padding / spacing).
+ * Peak opacity is low, so a rendering fault would only mean "no shadow" or a faint tint.
+ */
+private fun Modifier.softShadow(shape: Shape, color: Color, spread: Dp, alpha: Float): Modifier =
+    drawWithCache {
+        val path = when (val o = shape.createOutline(size, layoutDirection, this)) {
+            is Outline.Generic -> o.path
+            is Outline.Rectangle -> Path().apply { addRect(o.rect) }
+            is Outline.Rounded -> Path().apply { addRoundRect(o.roundRect) }
+        }
+        val spreadPx = spread.toPx()
+        val layers = 3
+        val layerColor = color.copy(alpha = alpha / layers)
+        onDrawBehind {
+            clipPath(path, ClipOp.Difference) {
+                translate(top = spreadPx * 0.3f) {
+                    for (i in 1..layers) {
+                        drawPath(
+                            path,
+                            layerColor,
+                            style = Stroke(width = 2f * spreadPx * i / layers, join = StrokeJoin.Round),
+                        )
+                    }
+                }
+            }
+        }
+    }
 
 /** Glass card. Pass [onClick] to make it tappable with the app's standard press-scale + haptic. */
 @Composable

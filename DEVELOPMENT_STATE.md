@@ -119,14 +119,20 @@ Branch: `feature/glass-redesign` (from main @ a891c0c). Requirements: owner's DA
 - Stage 2 glass foundation (commit 781060c): `ui/theme/Glass.kt` (tokens, `Df.glass`), `ui/components/Glass.kt` (`Modifier.glass`, `GlassCard`), `DfShapes.glass`. Owner-reported: Assemble BUILD SUCCESSFUL, signed release APK installed over existing app on OnePlus 8T, data preserved, no visible change (expected).
 - Step 1 of screen integration (commit b1a7ff1; owner-reported: built, signed APK installed on OnePlus 8T, data preserved, ambient gradient visible and working): `Modifier.ambientBackground()` (soft static colour glows, dark + light) now used by `DayflowRoot`; `chrome` option on `Modifier.glass` and `chromeTop/chromeBottom` tokens for bars/sheets; light theme background changed to cool `0xFFF1F2F6`.
 
-- Step 2 / patch 0003 (UNVERIFIED — not compiled or run): Home top section migrated to glass. `Overview` and `NowNext` use `Modifier.glass` (NowNext raised); new reusable `GlassIconButton` (44dp glass circle, press-scale, no haptic) used for the three top icons, amber permission dot kept; `DayCompleteBanner` keeps gradient with glass rim and 24dp radius; `ReviewButton` is a glass pill until the day is complete, then solid accent. Files: `ui/components/Glass.kt`, `ui/feature/home/HomeScreen.kt`. No logic, state or navigation changed.
+- Step 2 / patch 0003 (commit 91cd456; owner-reported: built and installed on OnePlus 8T; screenshot showed sharp lighter inset rectangles inside Overview/NowNext and round top buttons, plus grey cast over the glass): Home top section migrated to glass. `Overview` and `NowNext` use `Modifier.glass` (NowNext raised); new reusable `GlassIconButton` (44dp glass circle, press-scale, no haptic) used for the three top icons, amber permission dot kept; `DayCompleteBanner` keeps gradient with glass rim and 24dp radius; `ReviewButton` is a glass pill until the day is complete, then solid accent. Files: `ui/components/Glass.kt`, `ui/feature/home/HomeScreen.kt`. No logic, state or navigation changed.
+
+- Patch 0004 (UNVERIFIED — not compiled or run; visual verification pending owner testing): glass refinement.
+  - Root cause (source-level, not observed on device): `Modifier.shadow` in `Modifier.glass`. Compose sets layer alpha 1 and outline alpha 1 (OutlineResolver). HWUI `drawShadow` passes `kTransparentOccluder` only when node alpha x outline alpha < 1, so a translucent *fill* is still treated as an opaque occluder. For opaque occluders Skia's shadow tessellator emits a penumbra ring plus an inset convex umbra polygon and does not fill the polygon (hole). Under a see-through fill: grey rim + sharp lighter inset rectangle.
+  - Fix: removed `Modifier.shadow`; private `softShadow` in `ui/components/Glass.kt` (3 widening strokes of the shape outline inside `drawWithCache`, interior clipped out with `ClipOp.Difference`, low peak alpha). Works for rounded rects and circles via `Outline` to `Path`.
+  - Refinements: cool-tinted, more translucent fills; diagonal edge-highlight border; internal sheen (top band + top-left radial); faint lower-rim shade; new tokens `shadowAlpha`, `sheen`, `shade`.
+  - Files: `ui/components/Glass.kt`, `ui/theme/Glass.kt`. If the rectangles persist on device, next suspect is the fill gradient; diagnostic: delete only the shadow line.
 
 ### Design references (owner-supplied)
 Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp radii; diffuse shadows; floating pill nav with filled circular selected item; circular avatars and circular "+" buttons. App default theme is DARK, so both themes must be supported; light follows the references most closely.
 
 ### Screen integration plan
 1. Ambient backdrop + chrome variant (done, verified by owner).
-2. Home top section: top icons, Overview, NowNext, banner, Review button (done in patch 0003, unverified).
+2. Home top section: top icons, Overview, NowNext, banner, Review button (patch 0003 installed; visual defect addressed by patch 0004, unverified).
 3. Home section cards: Foundation, Important, Normal, Extra; Ideas stays paper.
 4. Bottom bar, FAB, timer mini-bar, scrim.
 5. Other screens (Tasks, Roadmap, Insights, Ideas, Settings, Alarms, Messages, Timer, Review).
@@ -134,7 +140,7 @@ Light, airy frosted glass on pale cool backdrop with soft colour blobs; ~28-32dp
 Open risks: shadow under translucent fill may show a dark box on some devices (check on device; fallback border-only); no backdrop blur (Haze not approved).
 
 ### Next steps
-1. Owner: apply patch 0003, build, check Home top section in dark and light. Specifically look for a dark box/halo around glass cards (shadow under translucent fill). If present: switch `Modifier.glass` to border-only or hand-drawn soft shadow.
+1. Owner: apply patch 0004, build, check Home in dark and light: inset rectangles and grey cast gone; text readable; shadow/edge/sheen subtle; no cut-off shadow at card edges; scrolling smooth.
 2. Step 3: Home section cards (Foundation, Important, Normal, Extra as tinted glass; Ideas stays paper).
 3. Step 4: bottom bar, FAB, timer mini-bar, scrim (use `chrome = true`).
 4. Later: other screens, sheets/dialogs, Stage 3 profile/onboarding (greeting name), Stage 4 interaction, backup of profile decision.

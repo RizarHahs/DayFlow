@@ -18,8 +18,13 @@ data class DfGlass(
     val borderTop: Color,
     val borderBottom: Color,
     val shadowColor: Color,
+    /** Outside-only soft shadow: spread, and peak opacity. Kept low so any rendering fault is benign. */
     val shadow: Dp,
     val shadowRaised: Dp,
+    val shadowAlpha: Float,
+    /** Faint internal reflection along the top, and a faint lower-rim shade for depth. */
+    val sheen: Color,
+    val shade: Color,
     val tintAlpha: Float,
     /** Denser fills for bars and sheets, where scrolling content passes underneath (no backdrop blur). */
     val chromeTop: Color,
@@ -27,26 +32,32 @@ data class DfGlass(
 )
 
 val DarkGlass = DfGlass(
-    fillTop = Color(0x1FFFFFFF),
-    fillBottom = Color(0x0DFFFFFF),
-    borderTop = Color(0x3DFFFFFF),
-    borderBottom = Color(0x0FFFFFFF),
+    fillTop = Color(0x1CE8EEFF),
+    fillBottom = Color(0x0BE8EEFF),
+    borderTop = Color(0x33FFFFFF),
+    borderBottom = Color(0x08FFFFFF),
     shadowColor = Color(0xFF000000),
-    shadow = 6.dp,
+    shadow = 8.dp,
     shadowRaised = 14.dp,
+    shadowAlpha = 0.30f,
+    sheen = Color(0x12FFFFFF),
+    shade = Color(0x14000000),
     tintAlpha = 0.12f,
     chromeTop = Color(0xF2202329),
     chromeBottom = Color(0xF21A1D22),
 )
 
 val LightGlass = DfGlass(
-    fillTop = Color(0xB8FFFFFF),
-    fillBottom = Color(0x8CFFFFFF),
-    borderTop = Color(0xE6FFFFFF),
-    borderBottom = Color(0x14000000),
-    shadowColor = Color(0xFF1A2230),
-    shadow = 4.dp,
-    shadowRaised = 10.dp,
+    fillTop = Color(0x8CF6F8FF),
+    fillBottom = Color(0x57E9EFFA),
+    borderTop = Color(0xB3FFFFFF),
+    borderBottom = Color(0x1F6B7C9C),
+    shadowColor = Color(0xFF2A3A5C),
+    shadow = 8.dp,
+    shadowRaised = 14.dp,
+    shadowAlpha = 0.12f,
+    sheen = Color(0x40FFFFFF),
+    shade = Color(0x0F5A6B8C),
     tintAlpha = 0.10f,
     chromeTop = Color(0xF2FFFFFF),
     chromeBottom = Color(0xE6F7F8FB),
